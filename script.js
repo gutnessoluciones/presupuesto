@@ -210,11 +210,13 @@ document.getElementById('saveBudgetBtn').addEventListener('click', () => {
         budgetToSave.id = Date.now();
         budgetToSave.createdAt = new Date().toISOString();
         savedBudgets.push(budgetToSave);
-        alert('Presupuesto guardado exitosamente');
+            alert('Presupuesto guardado exitosamente');
+            updateStorageStatus();
     }
 
     localStorage.setItem('budgets', JSON.stringify(savedBudgets));
     displaySavedBudgets();
+        updateStorageStatus();
 });
 
 // Imprimir presupuesto
@@ -439,6 +441,7 @@ function deleteBudget(index) {
         savedBudgets.splice(index, 1);
         localStorage.setItem('budgets', JSON.stringify(savedBudgets));
         displaySavedBudgets();
+            updateStorageStatus();
     }
 }
 
@@ -649,6 +652,7 @@ function initLogoUpload() {
                 globalLogo = logoData;
                 currentBudget.logo = logoData;
                 localStorage.setItem('globalLogo', logoData);
+                updateStorageStatus();
                 
                 // Ocultar el botón de carga cuando hay logo
                 document.querySelector('.logo-upload-btn').textContent = '✔️ Logo cargado';
@@ -668,6 +672,7 @@ function loadGlobalLogo() {
         companyLogo.src = savedLogo;
         companyLogo.style.display = 'block';
         document.querySelector('.logo-upload-btn').textContent = '✔️ Logo cargado';
+        updateStorageStatus();
     }
 }
 
