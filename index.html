@@ -18,6 +18,14 @@
         </header>
 
         <main>
+            <div class="storage-status">
+                <span id="storageStatus">Comprobando almacenamiento...</span>
+                <div class="storage-actions">
+                    <button id="exportDataBtn" class="btn btn-secondary">Exportar datos</button>
+                    <label for="importData" class="btn btn-primary">Importar datos</label>
+                    <input type="file" id="importData" accept="application/json" style="display:none">
+                </div>
+            </div>
             <section class="client-info">
                 <h2>Información del Cliente</h2>
                 <div class="form-group">

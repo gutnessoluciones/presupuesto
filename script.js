@@ -27,6 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initLogoUpload();
     initIVAToggle();
     initPDFExport();
+    initStorageTools();
 });
 
 // Establecer la fecha actual
@@ -268,6 +269,64 @@ function loadSavedBudgets() {
         savedBudgets = JSON.parse(stored);
         displaySavedBudgets();
     }
+}
+
+// Mostrar estado del almacenamiento y conectar botones de import/export
+function initStorageTools() {
+    updateStorageStatus();
+
+    const exportBtn = document.getElementById('exportDataBtn');
+    const importInput = document.getElementById('importData');
+
+    exportBtn.addEventListener('click', () => {
+        const data = {
+            globalLogo: localStorage.getItem('globalLogo') || null,
+            budgets: JSON.parse(localStorage.getItem('budgets') || '[]')
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `presupuestos_backup_${new Date().toISOString().slice(0,10)}.json`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+    });
+
+    importInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+            try {
+                const parsed = JSON.parse(ev.target.result);
+                if (parsed.globalLogo) {
+                    localStorage.setItem('globalLogo', parsed.globalLogo);
+                    loadGlobalLogo();
+                }
+                if (Array.isArray(parsed.budgets)) {
+                    // Merge budgets safely, preserving existing createdAt
+                    const existing = JSON.parse(localStorage.getItem('budgets') || '[]');
+                    const merged = existing.concat(parsed.budgets);
+                    localStorage.setItem('budgets', JSON.stringify(merged));
+                    loadSavedBudgets();
+                }
+                updateStorageStatus();
+                alert('Importación completa');
+            } catch (err) {
+                alert('Error leyendo el archivo: ' + err.message);
+            }
+        };
+        reader.readAsText(file);
+    });
+}
+
+function updateStorageStatus() {
+    const statusEl = document.getElementById('storageStatus');
+    const budgets = JSON.parse(localStorage.getItem('budgets') || '[]');
+    const hasLogo = !!localStorage.getItem('globalLogo');
+    statusEl.textContent = `Presupuestos guardados: ${budgets.length} — Logo cargado: ${hasLogo ? 'Sí' : 'No'}`;
 }
 
 // Mostrar presupuestos guardados
