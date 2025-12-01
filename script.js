@@ -324,6 +324,32 @@ function initStorageTools() {
     });
 }
 
+// Mostrar modal con contenido de localStorage
+function showStorageModal() {
+    const modal = document.getElementById('storageModal');
+    const dump = document.getElementById('storageDump');
+    const all = {
+        globalLogo: localStorage.getItem('globalLogo') || null,
+        budgets: JSON.parse(localStorage.getItem('budgets') || '[]')
+    };
+    dump.textContent = JSON.stringify(all, null, 2);
+    modal.style.display = 'flex';
+}
+
+function closeStorageModal() {
+    const modal = document.getElementById('storageModal');
+    modal.style.display = 'none';
+}
+
+// Connect modal buttons
+document.addEventListener('DOMContentLoaded', () => {
+    const viewBtn = document.getElementById('viewDataBtn');
+    if (viewBtn) viewBtn.addEventListener('click', showStorageModal);
+
+    const closeBtn = document.getElementById('closeStorageModal');
+    if (closeBtn) closeBtn.addEventListener('click', closeStorageModal);
+});
+
 function updateStorageStatus() {
     const statusEl = document.getElementById('storageStatus');
     const budgets = JSON.parse(localStorage.getItem('budgets') || '[]');

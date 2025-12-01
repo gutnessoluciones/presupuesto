@@ -22,6 +22,7 @@
                 <span id="storageStatus">Comprobando almacenamiento...</span>
                 <div class="storage-actions">
                     <button id="exportDataBtn" class="btn btn-secondary">Exportar datos</button>
+                    <button id="viewDataBtn" class="btn btn-info">Ver datos guardados</button>
                     <label for="importData" class="btn btn-primary">Importar datos</label>
                     <input type="file" id="importData" accept="application/json" style="display:none">
                 </div>
@@ -114,5 +115,18 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="script.js"></script>
+
+    <!-- Modal para ver datos guardados -->
+    <div id="storageModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Datos guardados (localStorage)</h3>
+                <button id="closeStorageModal" class="btn btn-danger">Cerrar</button>
+            </div>
+            <div class="modal-body">
+                <pre id="storageDump" style="white-space:pre-wrap; word-break:break-word; max-height:400px; overflow:auto;"></pre>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
