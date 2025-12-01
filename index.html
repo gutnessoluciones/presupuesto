@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Presupuestos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="header-logo">
+                <img id="companyLogo" src="" alt="Logo Empresa" style="display: none;">
+                <label for="logoUpload" class="logo-upload-btn">📷 Cargar Logo</label>
+                <input type="file" id="logoUpload" accept="image/*" style="display: none;">
+            </div>
+            <h1>GutNes</h1>
+        </header>
+
+        <main>
+            <section class="client-info">
+                <h2>Información del Cliente</h2>
+                <div class="form-group">
+                    <label for="clientName">Nombre del Cliente:</label>
+                    <input type="text" id="clientName" placeholder="Ingrese el nombre del cliente">
+                </div>
+                <div class="form-group">
+                    <label for="clientEmail">Email:</label>
+                    <input type="email" id="clientEmail" placeholder="cliente@ejemplo.com">
+                </div>
+                <div class="form-group">
+                    <label for="budgetDate">Fecha:</label>
+                    <input type="date" id="budgetDate">
+                </div>
+                <div class="form-group">
+                    <label for="budgetNumber">Nº Presupuesto:</label>
+                    <input type="text" id="budgetNumber" placeholder="001">
+                </div>
+            </section>
+
+            <section class="items-section">
+                <h2>Artículos del Presupuesto</h2>
+                <div class="add-item">
+                    <div class="form-row">
+                        <input type="text" id="itemDescription" placeholder="Descripción del artículo">
+                        <input type="number" id="itemQuantity" placeholder="Cantidad" min="1" value="1">
+                        <input type="number" id="itemPrice" placeholder="Precio unitario" min="0" step="0.01">
+                        <button id="addItemBtn" class="btn btn-primary">Agregar Artículo</button>
+                    </div>
+                </div>
+
+                <div class="items-list">
+                    <table id="itemsTable">
+                        <thead>
+                            <tr>
+                                <th>Descripción</th>
+                                <th>Cantidad</th>
+                                <th>Precio Unit.</th>
+                                <th>Subtotal</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody id="itemsTableBody">
+                            <!-- Los items se agregarán aquí dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <section class="totals-section">
+                <div class="totals">
+                    <div class="total-row">
+                        <span class="total-label">Subtotal:</span>
+                        <span class="total-value" id="subtotal">0.00€</span>
+                    </div>
+                    <div class="total-row iva-row">
+                        <label class="iva-checkbox">
+                            <input type="checkbox" id="includeIVA" checked>
+                            <span class="total-label">IVA (21%):</span>
+                        </label>
+                        <span class="total-value" id="iva">0.00€</span>
+                    </div>
+                    <div class="total-row total-final">
+                        <span class="total-label">Total:</span>
+                        <span class="total-value" id="total">0.00€</span>
+                    </div>
+                </div>
+            </section>
+
+            <section class="actions">
+                <button id="saveBudgetBtn" class="btn btn-success">Guardar Presupuesto</button>
+                <button id="exportPDFBtn" class="btn btn-info">📄 Exportar PDF</button>
+                <button id="printBudgetBtn" class="btn btn-secondary">Imprimir</button>
+                <button id="newBudgetBtn" class="btn btn-warning">Nuevo Presupuesto</button>
+            </section>
+
+            <section class="saved-budgets">
+                <h2>Presupuestos Guardados</h2>
+                <div id="savedBudgetsList" class="budgets-list">
+                    <!-- Los presupuestos guardados se mostrarán aquí -->
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
