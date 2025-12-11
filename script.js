@@ -215,6 +215,10 @@ document.getElementById('saveBudgetBtn').addEventListener('click', () => {
     }
 
     localStorage.setItem('budgets', JSON.stringify(savedBudgets));
+    
+    // Sync budget to server
+    syncBudgetToServer(budgetToSave);
+    
     displaySavedBudgets();
         updateStorageStatus();
 });
@@ -271,6 +275,8 @@ function loadSavedBudgets() {
         savedBudgets = JSON.parse(stored);
         displaySavedBudgets();
     }
+    // Attempt to load from server and merge
+    loadBudgetsFromServer();
 }
 
 // Mostrar estado del almacenamiento y conectar botones de import/export
@@ -304,8 +310,13 @@ function initStorageTools() {
             try {
                 const parsed = JSON.parse(ev.target.result);
                 if (parsed.globalLogo) {
-                    localStorage.setItem('globalLogo', parsed.globalLogo);
-                    loadGlobalLogo();
+                    // Do NOT overwrite an existing logo: logo is fixed
+                    if (!localStorage.getItem('globalLogo')) {
+                        localStorage.setItem('globalLogo', parsed.globalLogo);
+                        loadGlobalLogo();
+                    } else {
+                        console.info('Import contained a logo but an existing fixed logo is kept.');
+                    }
                 }
                 if (Array.isArray(parsed.budgets)) {
                     // Merge budgets safely, preserving existing createdAt
@@ -374,7 +385,7 @@ function displaySavedBudgets() {
     });
 
     container.innerHTML = sortedBudgets.map((budget) => {
-        const index = savedBudgets.findIndex(b => b.id === budget.id);
+        const index = savedBudgets.findIndex(b => String(b.id) === String(budget.id));
         return `
         <div class="budget-card">
             <h3>${budget.client.name}</h3>
@@ -429,21 +440,32 @@ function editBudget(index) {
 
 // Usar presupuesto como base (nuevo presupuesto con mismos artículos)
 function useAsTemplate(index) {
+    // Guardar seguridad: comprobar índice válido
+    if (typeof index !== 'number' || index < 0 || index >= savedBudgets.length) {
+        alert('No se pudo cargar el presupuesto para reutilizar. Por favor, recargue la página e inténtelo de nuevo.');
+        return;
+    }
+
     const budget = savedBudgets[index];
-    
+    if (!budget) {
+        alert('Presupuesto no encontrado');
+        return;
+    }
+
     // NO cargar ID (será nuevo presupuesto)
     currentBudget.id = null;
-    
-    document.getElementById('clientName').value = '';
-    document.getElementById('clientEmail').value = '';
+
+    // Cargar datos del cliente para facilitar la reutilización
+    document.getElementById('clientName').value = budget.client?.name || '';
+    document.getElementById('clientEmail').value = budget.client?.email || '';
     document.getElementById('includeIVA').checked = budget.includeIVA !== false;
 
-    currentBudget.items = JSON.parse(JSON.stringify(budget.items));
+    currentBudget.items = JSON.parse(JSON.stringify(budget.items || []));
     currentBudget.includeIVA = budget.includeIVA !== false;
-    
+
     const tbody = document.getElementById('itemsTableBody');
     tbody.innerHTML = '';
-    
+
     currentBudget.items.forEach(item => {
         addItemToTable(item);
     });
@@ -451,21 +473,28 @@ function useAsTemplate(index) {
     calculateTotals();
     setTodayDate();
     generateBudgetNumber();
-    
+
     // Asegurar que está en modo crear
     const saveBtn = document.getElementById('saveBudgetBtn');
     saveBtn.textContent = 'Guardar Presupuesto';
     saveBtn.classList.remove('btn-warning');
     saveBtn.classList.add('btn-success');
-    
+
     window.scrollTo({ top: 0, behavior: 'smooth' });
 }
 
 // Eliminar presupuesto
 function deleteBudget(index) {
     if (confirm('¿Está seguro de eliminar este presupuesto?')) {
+        const budgetId = savedBudgets[index]?.id;
         savedBudgets.splice(index, 1);
         localStorage.setItem('budgets', JSON.stringify(savedBudgets));
+        
+        // Sync deletion to server
+        if (budgetId) {
+            syncDeleteToServer(budgetId);
+        }
+        
         displaySavedBudgets();
             updateStorageStatus();
     }
@@ -662,30 +691,8 @@ document.getElementById('itemPrice').addEventListener('keypress', (e) => {
 
 // Inicializar carga de logotipo
 function initLogoUpload() {
-    const logoUpload = document.getElementById('logoUpload');
-    const companyLogo = document.getElementById('companyLogo');
-
-    logoUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (file && file.type.startsWith('image/')) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-                const logoData = event.target.result;
-                companyLogo.src = logoData;
-                companyLogo.style.display = 'block';
-                
-                // Guardar logo globalmente
-                globalLogo = logoData;
-                currentBudget.logo = logoData;
-                localStorage.setItem('globalLogo', logoData);
-                updateStorageStatus();
-                
-                // Ocultar el botón de carga cuando hay logo
-                document.querySelector('.logo-upload-btn').textContent = '✔️ Logo cargado';
-            };
-            reader.readAsDataURL(file);
-        }
-    });
+    // Logo upload disabled: logo is fixed and cannot be replaced from the UI.
+    // Intentionally no event listeners are attached.
 }
 
 // Cargar logo global
@@ -697,9 +704,12 @@ function loadGlobalLogo() {
         const companyLogo = document.getElementById('companyLogo');
         companyLogo.src = savedLogo;
         companyLogo.style.display = 'block';
-        document.querySelector('.logo-upload-btn').textContent = '✔️ Logo cargado';
+            const logoBtn = document.querySelector('.logo-upload-btn');
+            if (logoBtn) logoBtn.textContent = '✔️ Logo cargado';
         updateStorageStatus();
     }
+    // Attempt to load logo from server
+    loadLogoFromServer();
 }
 
 // Inicializar toggle de IVA
@@ -888,4 +898,91 @@ async function exportToPDF() {
     const clientName = document.getElementById('clientName').value || 'Cliente';
     const fileName = `GutNes_Ppto_${budgetNumber}_${clientName}.pdf`;
     doc.save(fileName);
+}
+
+// === SERVER SYNC FUNCTIONS ===
+
+// Try to sync a budget to the server
+async function syncBudgetToServer(budget) {
+    try {
+        const response = await fetch('/api/budgets', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(budget)
+        });
+        if (!response.ok) {
+            console.warn('Failed to sync budget to server:', response.statusText);
+        } else {
+            console.log('Budget synced to server:', budget.id);
+        }
+    } catch (error) {
+        console.warn('Could not sync to server (backend may be offline):', error.message);
+    }
+}
+
+// Try to sync a deletion to the server
+async function syncDeleteToServer(budgetId) {
+    try {
+        const response = await fetch(`/api/budgets/${budgetId}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) {
+            console.warn('Failed to delete budget on server:', response.statusText);
+        } else {
+            console.log('Budget deleted from server:', budgetId);
+        }
+    } catch (error) {
+        console.warn('Could not delete from server (backend may be offline):', error.message);
+    }
+}
+
+// Try to load budgets from the server and merge with localStorage
+async function loadBudgetsFromServer() {
+    try {
+        const response = await fetch('/api/budgets');
+        if (!response.ok) {
+            console.info('Server budgets not available');
+            return;
+        }
+        const serverBudgets = await response.json();
+        
+        // Merge: keep local-only and add server-only budgets
+        const localIds = new Set(savedBudgets.map(b => b.id));
+        const serverOnlyBudgets = serverBudgets.filter(sb => !localIds.has(sb.id));
+        
+        // Combine local + server-only, avoiding duplicates
+        savedBudgets = [...savedBudgets, ...serverOnlyBudgets];
+        localStorage.setItem('budgets', JSON.stringify(savedBudgets));
+        displaySavedBudgets();
+        
+        console.log('Merged server budgets with local storage');
+    } catch (error) {
+        console.info('Could not load budgets from server:', error.message);
+    }
+}
+
+// Try to load logo from the server
+async function loadLogoFromServer() {
+    try {
+        const response = await fetch('/api/logo');
+        if (!response.ok) {
+            console.info('Server logo not available');
+            return;
+        }
+        const data = await response.json();
+        
+        // Only load server logo if we don't already have one locally
+        if (data.globalLogo && !localStorage.getItem('globalLogo')) {
+            localStorage.setItem('globalLogo', data.globalLogo);
+            globalLogo = data.globalLogo;
+            currentBudget.logo = data.globalLogo;
+            const companyLogo = document.getElementById('companyLogo');
+            companyLogo.src = data.globalLogo;
+            companyLogo.style.display = 'block';
+            updateStorageStatus();
+            console.log('Loaded logo from server');
+        }
+    } catch (error) {
+        console.info('Could not load logo from server:', error.message);
+    }
 }

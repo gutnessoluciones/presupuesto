@@ -35,6 +35,30 @@ body {
     align-items: center;
 }
 
+.sync-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: 20px;
+}
+
+.sync-indicator .dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+    background: #d9534f; /* offline red */
+    box-shadow: 0 0 6px rgba(0,0,0,0.15);
+}
+.sync-indicator .dot.online { background: #28a745; }
+.sync-indicator .dot.syncing { background: #ffc107; }
+.sync-indicator .dot.offline { background: #d9534f; }
+
+.sync-indicator span#syncText {
+    font-size: 13px;
+    color: #333;
+}
+
 /* Modal styles for storage viewer */
 .modal {
     position: fixed;
@@ -109,6 +133,16 @@ header {
 
 .logo-upload-btn:hover {
     background: rgba(255, 255, 255, 0.3);
+}
+
+/* When logo is fixed, show a small badge instead */
+.logo-fixed-note {
+    background: rgba(255,255,255,0.12);
+    color: white;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 13px;
+    display: inline-block;
 }
 
 header h1 {

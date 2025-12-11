@@ -11,15 +11,19 @@
         <header>
             <div class="header-logo">
                 <img id="companyLogo" src="" alt="Logo Empresa" style="display: none;">
-                <label for="logoUpload" class="logo-upload-btn">📷 Cargar Logo</label>
-                <input type="file" id="logoUpload" accept="image/*" style="display: none;">
             </div>
             <h1>GutNes</h1>
         </header>
 
         <main>
             <div class="storage-status">
-                <span id="storageStatus">Comprobando almacenamiento...</span>
+                <div>
+                    <span id="storageStatus">Comprobando almacenamiento...</span>
+                </div>
+                <div class="sync-indicator" title="Estado de sincronización">
+                    <span id="syncDot" class="dot offline"></span>
+                    <span id="syncText">Desconectado</span>
+                </div>
                 <div class="storage-actions">
                     <button id="exportDataBtn" class="btn btn-secondary">Exportar datos</button>
                     <button id="viewDataBtn" class="btn btn-info">Ver datos guardados</button>
