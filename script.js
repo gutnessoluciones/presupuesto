@@ -715,7 +715,17 @@ function loadGlobalLogo() {
 // Inicializar toggle de IVA
 function initIVAToggle() {
     const ivaCheckbox = document.getElementById('includeIVA');
+    if (!ivaCheckbox) {
+        console.warn('IVA checkbox not found in DOM');
+        return;
+    }
     ivaCheckbox.addEventListener('change', () => {
+        console.log('IVA checkbox changed, recalculating totals');
+        calculateTotals();
+    });
+    // Also listen to click for better browser compatibility
+    ivaCheckbox.addEventListener('click', () => {
+        console.log('IVA checkbox clicked, recalculating totals');
         calculateTotals();
     });
 }
