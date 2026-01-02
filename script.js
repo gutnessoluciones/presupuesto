@@ -18,7 +18,7 @@ let currentBudget = {
 let savedBudgets = [];
 
 // Logo fijo - siempre usar este logo
-const FIXED_LOGO = 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDY1IDMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCiAgPCEtLSBHcmF5IGFyZWEgKHRvcC1sZWZ0KSAtLT4NCiAgPHJlY3QgeD0iMjAiIHk9IjMxIiB3aWR0aD0iODUiIGhlaWdodD0iMTc2IiBmaWxsPSIjOTk5OTk5Ii8+DQogIA0KICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKAG==';
+const FIXED_LOGO = 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDY1IDMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPCEtLSBHcmF5IGFyZWEgKHRvcC1sZWZ0KSAtLT4KPHJLY3QgeD0iMjAiIHk9IjMxIiB3aWR0aD0iODUiIGhlaWdodD0iMTc2IiBmaWxsPSIjOTk5OTk5Ii8+Cgo8IS0tIEdyYXkgYnJpZGdlIHNoYXBlIC0tPgo8cG9seWdvbiBwb2ludHM9IjExMCw5NSAxODUsMTUwIDE5NSwxNDAgMTIwLDg1IiBmaWxsPSIjOTk5OTk5Ii8+Cgo8IS0tIFlhbGxvdy9PcmFuZ2UgYXJlYSAodG9wLXJpZ2h0KSAtLT4KPHN2ZyBwb2x5Z29uIHBvaW50cz0iMTk1LDE0MCAyNDUsMzEgNDY1LDMxIDQ2NSwxNTAgMTk1LDE0MCIgZmlsbD0iI0ZEQjkyNyIvPgoKPCEtLSBCbHVlIGRpYW1vbmQvdHJpYW5nbGUgKGNlbnRlcikgLS0+Cjxwb2x5Z29uIHBvaW50cz0iMjUsMjU2IDI0NSwxNTAgNDY1LDI1NiIgZmlsbD0iIzRBOTBFMiIvPgoKPCEtLSBDeWFuL1R1cnF1b2lzZSBib3R0b20gYXJlYSAtLT4KPHJLY3QgeD0iMjUiIHk9IjI1NiIgd2lkdGg9IjQ0MCIgaGVpZ2h0PSI0NCIgZmlsbD0iIzE3RDRENiIvPgo8L3N2Zz4=';
 
 let globalLogo = FIXED_LOGO;
 
@@ -711,15 +711,9 @@ document.getElementById('itemPrice').addEventListener('keypress', (e) => {
 // Inicializar carga de logotipo
 function initLogoUpload() {
     const logoBtn = document.querySelector('.logo-upload-btn');
-
     if (logoBtn) {
-        // El logo está siempre fijo - deshabilitar completamente la carga
-        logoBtn.textContent = '🔒 Logo fijo';
-        logoBtn.disabled = true;
-        logoBtn.style.opacity = '0.6';
-        logoBtn.style.cursor = 'not-allowed';
-        logoBtn.title = 'El logo está fijo y no se puede cambiar';
-        // No agregar listeners - el logo no se puede cambiar
+        // El logo está siempre fijo - ocultar el botón completamente
+        logoBtn.style.display = 'none';
     }
 }
 
