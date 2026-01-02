@@ -34,6 +34,13 @@ db.serialize(() => {
         value TEXT
       )
     `);
+    db.run(`
+      CREATE TABLE items (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        description TEXT UNIQUE NOT NULL,
+        createdAt DATETIME DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
     console.log('Database initialized');
   }
 });
@@ -90,6 +97,26 @@ app.post('/api/logo', (req, res) => {
   const logo = req.body.logo;
   if (!logo) return res.status(400).json({ error: 'No logo provided' });
   db.run('INSERT OR REPLACE INTO meta(key, value) VALUES(?, ?)', ['globalLogo', logo], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ ok: true });
+  });
+});
+
+// Items endpoints - para autocompletar descripciones
+app.get('/api/items', (req, res) => {
+  db.all('SELECT DISTINCT description FROM items ORDER BY createdAt DESC LIMIT 100', [], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    const descriptions = rows.map(r => r.description);
+    res.json({ items: descriptions });
+  });
+});
+
+app.post('/api/items', (req, res) => {
+  const { description } = req.body;
+  if (!description || description.trim() === '') {
+    return res.status(400).json({ error: 'Description required' });
+  }
+  db.run('INSERT OR IGNORE INTO items(description) VALUES(?)', [description.trim()], function(err) {
     if (err) return res.status(500).json({ error: err.message });
     res.json({ ok: true });
   });
