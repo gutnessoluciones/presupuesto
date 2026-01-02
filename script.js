@@ -662,6 +662,21 @@ function exportBudgetToPDF(index) {
     doc.text('TOTAL:', 120, yPosition);
     doc.text(`${budget.total.toFixed(2)}€`, 192, yPosition, { align: 'right' });
     
+    yPosition += 15;
+    
+    // Información bancaria
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('DATOS BANCARIOS:', 15, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(9);
+    doc.text('Cuenta bancaria: ES87 1563 2626 3232 6953 8771', 15, yPosition);
+    yPosition += 6;
+    doc.text('Beneficiario: GutNes', 15, yPosition);
+    
     // Añadir pie de página legal en la última página
     addLegalFooter(pageNumber);
     
@@ -899,6 +914,21 @@ async function exportToPDF() {
     doc.setTextColor(102, 126, 234);
     doc.text('TOTAL:', 120, yPosition);
     doc.text(`${currentBudget.total.toFixed(2)}€`, 192, yPosition, { align: 'right' });
+    
+    yPosition += 15;
+    
+    // Información bancaria
+    doc.setFontSize(10);
+    doc.setFont(undefined, 'bold');
+    doc.setTextColor(0, 0, 0);
+    doc.text('DATOS BANCARIOS:', 15, yPosition);
+    yPosition += 8;
+    
+    doc.setFont(undefined, 'normal');
+    doc.setFontSize(9);
+    doc.text('Cuenta bancaria: ES87 1563 2626 3232 6953 8771', 15, yPosition);
+    yPosition += 6;
+    doc.text('Beneficiario: GutNes', 15, yPosition);
     
     // Añadir pie de página legal en la última página
     addLegalFooter(pageNumber);
