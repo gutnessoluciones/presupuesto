@@ -111,6 +111,12 @@ header {
     left: 30px;
 }
 
+.header-actions {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+}
+
 #companyLogo {
     max-width: 120px;
     max-height: 80px;

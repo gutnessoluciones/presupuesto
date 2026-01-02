@@ -706,8 +706,38 @@ document.getElementById('itemPrice').addEventListener('keypress', (e) => {
 
 // Inicializar carga de logotipo
 function initLogoUpload() {
-    // Logo upload disabled: logo is fixed and cannot be replaced from the UI.
-    // Intentionally no event listeners are attached.
+    const logoInput = document.getElementById('logoInput');
+    const logoBtn = document.querySelector('.logo-upload-btn');
+
+    if (logoInput && logoBtn) {
+        logoBtn.addEventListener('click', () => {
+            logoInput.click();
+        });
+
+        logoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const logoData = event.target.result;
+                    globalLogo = logoData;
+                    localStorage.setItem('globalLogo', logoData);
+                    currentBudget.logo = logoData;
+
+                    const companyLogo = document.getElementById('companyLogo');
+                    companyLogo.src = logoData;
+                    companyLogo.style.display = 'block';
+
+                    logoBtn.textContent = '✔️ Logo cargado';
+                    updateStorageStatus();
+
+                    // Sync logo to server
+                    syncLogoToServer(logoData);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
 }
 
 // Cargar logo global
@@ -942,8 +972,23 @@ async function exportToPDF() {
 
 // === SERVER SYNC FUNCTIONS ===
 
-// Try to sync a budget to the server
-async function syncBudgetToServer(budget) {
+// Try to sync a logo to the server
+async function syncLogoToServer(logoData) {
+    try {
+        const response = await fetch('/api/logo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ logo: logoData })
+        });
+        if (!response.ok) {
+            console.warn('Failed to sync logo to server:', response.statusText);
+        } else {
+            console.log('Logo synced to server');
+        }
+    } catch (error) {
+        console.warn('Could not sync logo to server (backend may be offline):', error.message);
+    }
+}
     try {
         const response = await fetch('/api/budgets', {
             method: 'POST',
