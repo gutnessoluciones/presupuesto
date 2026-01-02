@@ -710,6 +710,17 @@ function initLogoUpload() {
     const logoBtn = document.querySelector('.logo-upload-btn');
 
     if (logoInput && logoBtn) {
+        // Check if logo is already set (fixed)
+        const existingLogo = localStorage.getItem('globalLogo');
+        if (existingLogo) {
+            logoBtn.textContent = '🔒 Logo fijo';
+            logoBtn.disabled = true;
+            logoBtn.style.opacity = '0.6';
+            logoBtn.style.cursor = 'not-allowed';
+            logoBtn.title = 'El logo está fijo y no se puede cambiar';
+            return; // Don't attach event listeners if logo is fixed
+        }
+
         logoBtn.addEventListener('click', () => {
             logoInput.click();
         });
@@ -728,7 +739,13 @@ function initLogoUpload() {
                     companyLogo.src = logoData;
                     companyLogo.style.display = 'block';
 
-                    logoBtn.textContent = '✔️ Logo cargado';
+                    // Once logo is uploaded, make it fixed
+                    logoBtn.textContent = '🔒 Logo fijo';
+                    logoBtn.disabled = true;
+                    logoBtn.style.opacity = '0.6';
+                    logoBtn.style.cursor = 'not-allowed';
+                    logoBtn.title = 'El logo está fijo y no se puede cambiar';
+
                     updateStorageStatus();
 
                     // Sync logo to server
@@ -749,8 +766,17 @@ function loadGlobalLogo() {
         const companyLogo = document.getElementById('companyLogo');
         companyLogo.src = savedLogo;
         companyLogo.style.display = 'block';
-            const logoBtn = document.querySelector('.logo-upload-btn');
-            if (logoBtn) logoBtn.textContent = '✔️ Logo cargado';
+        
+        // Mark logo as fixed
+        const logoBtn = document.querySelector('.logo-upload-btn');
+        if (logoBtn) {
+            logoBtn.textContent = '🔒 Logo fijo';
+            logoBtn.disabled = true;
+            logoBtn.style.opacity = '0.6';
+            logoBtn.style.cursor = 'not-allowed';
+            logoBtn.title = 'El logo está fijo y no se puede cambiar';
+        }
+        
         updateStorageStatus();
     }
     // Attempt to load logo from server
@@ -1064,6 +1090,17 @@ async function loadLogoFromServer() {
             const companyLogo = document.getElementById('companyLogo');
             companyLogo.src = data.globalLogo;
             companyLogo.style.display = 'block';
+            
+            // Mark logo as fixed
+            const logoBtn = document.querySelector('.logo-upload-btn');
+            if (logoBtn) {
+                logoBtn.textContent = '🔒 Logo fijo';
+                logoBtn.disabled = true;
+                logoBtn.style.opacity = '0.6';
+                logoBtn.style.cursor = 'not-allowed';
+                logoBtn.title = 'El logo está fijo y no se puede cambiar';
+            }
+            
             updateStorageStatus();
             console.log('Loaded logo from server');
         }
