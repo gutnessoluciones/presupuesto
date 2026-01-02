@@ -16,7 +16,11 @@ let currentBudget = {
 };
 
 let savedBudgets = [];
-let globalLogo = '';
+
+// Logo fijo - siempre usar este logo
+const FIXED_LOGO = 'data:image/svg+xml;base64,PHN2ZyB2aWV3Qm94PSIwIDAgNDY1IDMwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4NCiAgPCEtLSBHcmF5IGFyZWEgKHRvcC1sZWZ0KSAtLT4NCiAgPHJlY3QgeD0iMjAiIHk9IjMxIiB3aWR0aD0iODUiIGhlaWdodD0iMTc2IiBmaWxsPSIjOTk5OTk5Ii8+DQogIA0KICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKICAKAG==';
+
+let globalLogo = FIXED_LOGO;
 
 // Cargar presupuestos guardados del localStorage al iniciar
 document.addEventListener('DOMContentLoaded', () => {
@@ -706,81 +710,40 @@ document.getElementById('itemPrice').addEventListener('keypress', (e) => {
 
 // Inicializar carga de logotipo
 function initLogoUpload() {
-    const logoInput = document.getElementById('logoInput');
     const logoBtn = document.querySelector('.logo-upload-btn');
 
-    if (logoInput && logoBtn) {
-        // Check if logo is already set (fixed)
-        const existingLogo = localStorage.getItem('globalLogo');
-        if (existingLogo) {
-            logoBtn.textContent = '🔒 Logo fijo';
-            logoBtn.disabled = true;
-            logoBtn.style.opacity = '0.6';
-            logoBtn.style.cursor = 'not-allowed';
-            logoBtn.title = 'El logo está fijo y no se puede cambiar';
-            return; // Don't attach event listeners if logo is fixed
-        }
-
-        logoBtn.addEventListener('click', () => {
-            logoInput.click();
-        });
-
-        logoInput.addEventListener('change', (e) => {
-            const file = e.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = (event) => {
-                    const logoData = event.target.result;
-                    globalLogo = logoData;
-                    localStorage.setItem('globalLogo', logoData);
-                    currentBudget.logo = logoData;
-
-                    const companyLogo = document.getElementById('companyLogo');
-                    companyLogo.src = logoData;
-                    companyLogo.style.display = 'block';
-
-                    // Once logo is uploaded, make it fixed
-                    logoBtn.textContent = '🔒 Logo fijo';
-                    logoBtn.disabled = true;
-                    logoBtn.style.opacity = '0.6';
-                    logoBtn.style.cursor = 'not-allowed';
-                    logoBtn.title = 'El logo está fijo y no se puede cambiar';
-
-                    updateStorageStatus();
-
-                    // Sync logo to server
-                    syncLogoToServer(logoData);
-                };
-                reader.readAsDataURL(file);
-            }
-        });
+    if (logoBtn) {
+        // El logo está siempre fijo - deshabilitar completamente la carga
+        logoBtn.textContent = '🔒 Logo fijo';
+        logoBtn.disabled = true;
+        logoBtn.style.opacity = '0.6';
+        logoBtn.style.cursor = 'not-allowed';
+        logoBtn.title = 'El logo está fijo y no se puede cambiar';
+        // No agregar listeners - el logo no se puede cambiar
     }
 }
 
 // Cargar logo global
 function loadGlobalLogo() {
-    const savedLogo = localStorage.getItem('globalLogo');
-    if (savedLogo) {
-        globalLogo = savedLogo;
-        currentBudget.logo = savedLogo;
-        const companyLogo = document.getElementById('companyLogo');
-        companyLogo.src = savedLogo;
+    // Siempre usar el logo fijo
+    const companyLogo = document.getElementById('companyLogo');
+    if (companyLogo) {
+        companyLogo.src = FIXED_LOGO;
         companyLogo.style.display = 'block';
-        
-        // Mark logo as fixed
-        const logoBtn = document.querySelector('.logo-upload-btn');
-        if (logoBtn) {
-            logoBtn.textContent = '🔒 Logo fijo';
-            logoBtn.disabled = true;
-            logoBtn.style.opacity = '0.6';
-            logoBtn.style.cursor = 'not-allowed';
-            logoBtn.title = 'El logo está fijo y no se puede cambiar';
-        }
-        
-        updateStorageStatus();
     }
-    // Attempt to load logo from server
-    loadLogoFromServer();
+    
+    currentBudget.logo = FIXED_LOGO;
+    globalLogo = FIXED_LOGO;
+    
+    // El botón de carga siempre está deshabilitado
+    const logoBtn = document.querySelector('.logo-upload-btn');
+    if (logoBtn) {
+        logoBtn.textContent = '🔒 Logo fijo';
+        logoBtn.disabled = true;
+        logoBtn.style.opacity = '0.6';
+        logoBtn.style.cursor = 'not-allowed';
+        logoBtn.title = 'El logo está fijo y no se puede cambiar';
+    }
 }
 
 // Inicializar toggle de IVA
@@ -862,13 +825,11 @@ async function exportToPDF() {
     let yPosition = 20;
     let pageNumber = 1;
     
-    // Añadir logo si existe
-    if (currentBudget.logo) {
-        try {
-            doc.addImage(currentBudget.logo, 'PNG', 15, yPosition, 40, 30);
-        } catch (error) {
-            console.log('Error al añadir logo:', error);
-        }
+    // Añadir logo (siempre existe, está fijo)
+    try {
+        doc.addImage(FIXED_LOGO, 'PNG', 15, yPosition, 40, 30);
+    } catch (error) {
+        console.log('Error al añadir logo:', error);
     }
     
     // Nombre de la empresa
@@ -999,22 +960,26 @@ async function exportToPDF() {
 // === SERVER SYNC FUNCTIONS ===
 
 // Try to sync a logo to the server
-async function syncLogoToServer(logoData) {
+async function syncLogoToServer() {
+    // Sincronizar logo fijo al servidor
     try {
         const response = await fetch('/api/logo', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ logo: logoData })
+            body: JSON.stringify({ logo: FIXED_LOGO })
         });
         if (!response.ok) {
-            console.warn('Failed to sync logo to server:', response.statusText);
+            console.info('Could not sync fixed logo to server (not critical):', response.statusText);
         } else {
-            console.log('Logo synced to server');
+            console.log('Fixed logo synced to server');
         }
     } catch (error) {
-        console.warn('Could not sync logo to server (backend may be offline):', error.message);
+        console.info('Could not sync logo to server (backend may be offline):', error.message);
     }
 }
+
+// Try to sync a budget to the server
+async function syncBudgetToServer(budget) {
     try {
         const response = await fetch('/api/budgets', {
             method: 'POST',
@@ -1074,37 +1039,6 @@ async function loadBudgetsFromServer() {
 
 // Try to load logo from the server
 async function loadLogoFromServer() {
-    try {
-        const response = await fetch('/api/logo');
-        if (!response.ok) {
-            console.info('Server logo not available');
-            return;
-        }
-        const data = await response.json();
-        
-        // Only load server logo if we don't already have one locally
-        if (data.globalLogo && !localStorage.getItem('globalLogo')) {
-            localStorage.setItem('globalLogo', data.globalLogo);
-            globalLogo = data.globalLogo;
-            currentBudget.logo = data.globalLogo;
-            const companyLogo = document.getElementById('companyLogo');
-            companyLogo.src = data.globalLogo;
-            companyLogo.style.display = 'block';
-            
-            // Mark logo as fixed
-            const logoBtn = document.querySelector('.logo-upload-btn');
-            if (logoBtn) {
-                logoBtn.textContent = '🔒 Logo fijo';
-                logoBtn.disabled = true;
-                logoBtn.style.opacity = '0.6';
-                logoBtn.style.cursor = 'not-allowed';
-                logoBtn.title = 'El logo está fijo y no se puede cambiar';
-            }
-            
-            updateStorageStatus();
-            console.log('Loaded logo from server');
-        }
-    } catch (error) {
-        console.info('Could not load logo from server:', error.message);
-    }
+    // El logo está siempre fijo, no necesario cargar desde servidor
+    // La constante FIXED_LOGO se usa en todas partes
 }

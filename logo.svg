@@ -1,0 +1,16 @@
+<svg viewBox="0 0 465 300" xmlns="http://www.w3.org/2000/svg">
+  <!-- Gray area (top-left) -->
+  <rect x="20" y="31" width="85" height="176" fill="#999999"/>
+  
+  <!-- Gray bridge shape -->
+  <polygon points="110,95 185,150 195,140 120,85" fill="#999999"/>
+  
+  <!-- Yellow/Orange area (top-right) -->
+  <polygon points="195,140 245,31 465,31 465,150 195,140" fill="#FDB927"/>
+  
+  <!-- Blue diamond/triangle (center) -->
+  <polygon points="25,256 245,150 465,256" fill="#4A90E2"/>
+  
+  <!-- Cyan/Turquoise bottom area -->
+  <rect x="25" y="256" width="440" height="44" fill="#17D4D4"/>
+</svg>
