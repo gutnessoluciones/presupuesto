@@ -26,6 +26,7 @@ let globalLogo = FIXED_LOGO;
 document.addEventListener('DOMContentLoaded', () => {
     loadSavedBudgets();
     loadGlobalLogo();
+    syncLogoToServer(); // Guardar el logo actual en el servidor
     setTodayDate();
     generateBudgetNumber();
     initLogoUpload();
@@ -895,9 +896,10 @@ async function exportToPDF() {
     let yPosition = 20;
     let pageNumber = 1;
     
-    // Añadir logo (siempre existe, está fijo)
+    // Añadir logo (usa el logo actual, ya sea el predeterminado o uno personalizado)
     try {
-        doc.addImage(FIXED_LOGO, 'PNG', 15, yPosition, 40, 30);
+        const logoToUse = globalLogo || FIXED_LOGO;
+        doc.addImage(logoToUse, 'PNG', 15, yPosition, 40, 30);
     } catch (error) {
         console.log('Error al añadir logo:', error);
     }
