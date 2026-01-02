@@ -32,6 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initIVAToggle();
     initPDFExport();
     initStorageTools();
+    loadItemDescriptions();
 });
 
 // Establecer la fecha actual
@@ -94,6 +95,9 @@ document.getElementById('addItemBtn').addEventListener('click', () => {
 
         currentBudget.items.push(item);
         addItemToTable(item);
+        
+        // Guardar descripción en el servidor para autocompletar futuro
+        saveItemDescription(description);
     }
 
     calculateTotals();
@@ -710,35 +714,107 @@ document.getElementById('itemPrice').addEventListener('keypress', (e) => {
 
 // Inicializar carga de logotipo
 function initLogoUpload() {
-    const logoBtn = document.querySelector('.logo-upload-btn');
-    if (logoBtn) {
-        // El logo está siempre fijo - ocultar el botón completamente
-        logoBtn.style.display = 'none';
+    const logoContainer = document.getElementById('logoContainer');
+    const logoInput = document.getElementById('logoInput');
+    const companyLogo = document.getElementById('companyLogo');
+    const logoPlaceholder = document.getElementById('logoPlaceholder');
+    
+    if (logoContainer && logoInput) {
+        // Click en el contenedor del logo abre el diálogo de archivo
+        logoContainer.addEventListener('click', () => {
+            logoInput.click();
+        });
+        
+        // Cambio en el input de archivo
+        logoInput.addEventListener('change', (e) => {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    const logoData = event.target.result;
+                    globalLogo = logoData;
+                    currentBudget.logo = logoData;
+                    
+                    // Mostrar logo y ocultar placeholder
+                    companyLogo.src = logoData;
+                    companyLogo.style.display = 'block';
+                    if (logoPlaceholder) {
+                        logoPlaceholder.style.display = 'none';
+                    }
+                    
+                    // Sincronizar con servidor
+                    saveItemDescription(logoData);
+                };
+                reader.readAsDataURL(file);
+            }
+        });
     }
 }
 
 // Cargar logo global
 function loadGlobalLogo() {
-    // Siempre usar el logo fijo
+    // Cargar logo fijo como predeterminado
     const companyLogo = document.getElementById('companyLogo');
+    const logoPlaceholder = document.getElementById('logoPlaceholder');
+    
     if (companyLogo) {
         companyLogo.src = FIXED_LOGO;
         companyLogo.style.display = 'block';
+        // Ocultar placeholder si hay logo
+        if (logoPlaceholder) {
+            logoPlaceholder.style.display = 'none';
+        }
     }
     
     currentBudget.logo = FIXED_LOGO;
     globalLogo = FIXED_LOGO;
-    
-    // El botón de carga siempre está deshabilitado
-    const logoBtn = document.querySelector('.logo-upload-btn');
-    if (logoBtn) {
-        logoBtn.textContent = '🔒 Logo fijo';
-        logoBtn.disabled = true;
-        logoBtn.style.opacity = '0.6';
-        logoBtn.style.cursor = 'not-allowed';
-        logoBtn.title = 'El logo está fijo y no se puede cambiar';
+}
+
+// Cargar descripciones de artículos desde el servidor para autocompletar
+async function loadItemDescriptions() {
+    try {
+        const response = await fetch('/api/items');
+        if (!response.ok) {
+            console.info('Could not load item descriptions');
+            return;
+        }
+        const data = await response.json();
+        populateDescriptionList(data.items || []);
+    } catch (error) {
+        console.info('Could not load item descriptions:', error.message);
     }
 }
+
+// Poblar el datalist con descripciones
+function populateDescriptionList(descriptions) {
+    const datalist = document.getElementById('descriptionList');
+    if (!datalist) return;
+    
+    datalist.innerHTML = '';
+    descriptions.forEach(desc => {
+        const option = document.createElement('option');
+        option.value = desc;
+        datalist.appendChild(option);
+    });
+}
+
+// Guardar nueva descripción de artículo en el servidor
+async function saveItemDescription(description) {
+    try {
+        const response = await fetch('/api/items', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ description: description.trim() })
+        });
+        if (response.ok) {
+            // Recargar lista de descripciones
+            loadItemDescriptions();
+        }
+    } catch (error) {
+        console.info('Could not save item description:', error.message);
+    }
+}
+
 
 // Inicializar toggle de IVA
 function initIVAToggle() {

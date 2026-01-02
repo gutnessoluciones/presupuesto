@@ -9,13 +9,15 @@
 <body>
     <div class="container">
         <header>
-            <div class="header-logo">
-                <img id="companyLogo" src="" alt="Logo Empresa" style="display: none;">
+            <div class="header-logo" id="logoContainer" style="cursor: pointer; position: relative;">
+                <img id="companyLogo" src="" alt="Logo Empresa" style="display: none; width: 80px; height: auto;">
+                <div id="logoPlaceholder" style="display: flex; align-items: center; justify-content: center; width: 80px; height: 80px; background: #f0f0f0; border: 2px dashed #999; border-radius: 4px;">
+                    <span style="color: #999; font-size: 12px; text-align: center; padding: 10px;">📤 Subir Logo</span>
+                </div>
+                <input type="file" id="logoInput" accept="image/*" style="display: none;">
             </div>
             <h1>GutNes</h1>
             <div class="header-actions">
-                <button class="btn btn-secondary logo-upload-btn">📤 Subir Logo</button>
-                <input type="file" id="logoInput" accept="image/*" style="display: none;">
             </div>
         </header>
 
@@ -59,7 +61,8 @@
                 <h2>Artículos del Presupuesto</h2>
                 <div class="add-item">
                     <div class="form-row">
-                        <input type="text" id="itemDescription" placeholder="Descripción del artículo">
+                        <input type="text" id="itemDescription" placeholder="Descripción del artículo" list="descriptionList">
+                        <datalist id="descriptionList"></datalist>
                         <input type="number" id="itemQuantity" placeholder="Cantidad" min="1" value="1">
                         <input type="number" id="itemPrice" placeholder="Precio unitario" min="0" step="0.01">
                         <button id="addItemBtn" class="btn btn-primary">Agregar Artículo</button>
