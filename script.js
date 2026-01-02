@@ -675,7 +675,7 @@ function exportBudgetToPDF(index) {
     doc.setFontSize(9);
     doc.text('Cuenta bancaria: ES87 1563 2626 3232 6953 8771', 15, yPosition);
     yPosition += 6;
-    doc.text('Beneficiario: GutNes', 15, yPosition);
+    doc.text('Beneficiario: Juan Carlos Gutiérrez Rodríguez', 15, yPosition);
     
     // Añadir pie de página legal en la última página
     addLegalFooter(pageNumber);
@@ -928,7 +928,7 @@ async function exportToPDF() {
     doc.setFontSize(9);
     doc.text('Cuenta bancaria: ES87 1563 2626 3232 6953 8771', 15, yPosition);
     yPosition += 6;
-    doc.text('Beneficiario: GutNes', 15, yPosition);
+    doc.text('Beneficiario: Juan Carlos Gutiérrez Rodríguez', 15, yPosition);
     
     // Añadir pie de página legal en la última página
     addLegalFooter(pageNumber);
